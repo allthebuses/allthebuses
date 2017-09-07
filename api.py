@@ -21,6 +21,10 @@ app.config['COMPRESS_MIMETYPES'].append("application/vnd.geo+json")
 def root():
     return app.send_static_file('index.html')
 
+@app.route('/ridden-by')
+def root():
+    return app.send_static_file('by-person.html')
+
 @app.route('/status.json')
 def status():
     result = goog_api.get('https://sheets.googleapis.com/v4/spreadsheets/' +

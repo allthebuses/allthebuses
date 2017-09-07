@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>All The Buses</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.39.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.39.1/mapbox-gl.css' rel='stylesheet' />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+
+      #logo {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 200px;
+      }
+
+      #logo > img {
+        width: 100%;
+      }
+    </style>
+</head>
+<body>
+
+<div id='map'></div>
+<div id='logo'><img src="/static/logo.png" /></div>
+<script>
+  mapboxgl.accessToken = 'pk.eyJ1IjoiaWdub3JlZGFtYmllbmNlIiwiYSI6ImNqNzl4cXRjNTA2amoyeG1iNXJ1eGxlb3kifQ.tX0X5FiKjp3ifGH917pKsA';
+  var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/light-v9',
+    center: [-0.1275, 51.507222],
+    zoom: 10
+  });
+
+  var nav = new mapboxgl.NavigationControl();
+  map.addControl(nav, 'top-left');
+
+
+  map.on('load', function () {
+    map.addSource('routes-source', { type: 'geojson', data: '/static/all-routes.geojson' });
+
+    var zoomStops = { "stops": [[10, 3], [15, 5]] };
+
+    map.addLayer({
+        "id": "hugo",
+        "type": "line",
+        "source": "routes-source",
+        "paint": {
+          "line-color": "#92d050",
+          "line-width": zoomStops,
+          "line-blur": 1
+        },
+        "filter": ["!has", "name"]
+    }, "waterway-label");
+
+    map.addLayer({
+        "id": "josh",
+        "type": "line",
+        "source": "routes-source",
+        "paint": {
+          "line-color": "#b2a1c7",
+          "line-width": zoomStops,
+          "line-blur": 1
+        },
+        "filter": ["!has", "name"]
+    }, "hugo");
+
+    map.addLayer({
+        "id": "david",
+        "type": "line",
+        "source": "routes-source",
+        "paint": {
+          "line-color": "#95b3d7",
+          "line-width": zoomStops,
+          "line-blur": 1
+        },
+        "filter": ["!has", "name"]
+    }, "josh");
+
+    map.addLayer({
+        "id": "tangy",
+        "type": "line",
+        "source": "routes-source",
+        "paint": {
+          "line-color": "#d99594",
+          "line-width": zoomStops,
+          "line-blur": 1
+        },
+        "filter": ["!has", "name"]
+    }, "david");
+
+    map.addLayer({
+        "id": "adham",
+        "type": "line",
+        "source": "routes-source",
+        "paint": {
+          "line-color": "#ffc000",
+          "line-width": zoomStops,
+          "line-blur": 1
+        },
+        "filter": ["!has", "name"]
+    }, "tangy");
+
+    map.addLayer({
+        "id": "other-layer",
+        "type": "line",
+        "source": "routes-source",
+        "paint": {
+          "line-color": "darkslategray",
+          "line-width": zoomStops,
+          "line-blur": 1
+        },
+        "filter": ["has", "name"]
+    }, "adham");
+
+    map.addLayer({
+      "id": "attribution-layer",
+      "type": "circle",
+      "source": {
+          "type": "geojson",
+          "data": {
+              "type": "Feature",
+              "properties": {},
+              "geometry": null
+          }
+      }
+    });
+
+    var popup = new mapboxgl.Popup();
+    ["yes-layer", "no-layer"].forEach(function(l) {
+      map.on('click', l, function(e) {
+        var name = e.features[0].properties.name;
+        popup.remove()
+          .setLngLat(e.lngLat)
+          .setHTML(JSON.stringify(statusData.find(function(e) { return e[0] == name })))
+          .addTo(map)
+          .on("close", function() {
+            map.setFilter("select-layer", ["in", "name", ""]);
+          });
+
+        map.setFilter("select-layer", ["in", "name", name]);
+
+        // Change the cursor to a pointer when the mouse is over the places layer.
+        map.on('mouseenter', l, function () {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+
+        // Change it back to a pointer when it leaves.
+        map.on('mouseleave', l, function () {
+          map.getCanvas().style.cursor = '';
+        });
+
+        return false;
+      });
+    });
+
+    map.style.sourceCaches['attribution-layer']._source.attribution =
+      "Powered by TfL Open Data | Contains OS data &copy; Crown copyright and database rights 2017";
+
+    loadData();
+  });
+
+  function loadData() {
+    var r = new XMLHttpRequest();
+
+    r.onreadystatechange = function() {
+      if (r.readyState === XMLHttpRequest.DONE) {
+        if (r.status === 200) {
+          var resp = handleData(r.responseText);
+        }
+      }
+    };
+
+    r.open('GET', '/status.json');
+    r.send();
+  };
+
+  var statusData = {};
+  function handleData(text) {
+    statusData = JSON.parse(text);
+    var riders = {
+      "adham": ["in", "name"],
+      "tangy": ["in", "name"],
+      "josh": ["in", "name"],
+      "david": ["in", "name"],
+      "hugo": ["in", "name"]
+    };
+    var all = ["!in", "name"];
+
+    statusData.forEach(function(el) {
+      all.push(el[0]);
+      riders[el[2].toLowerCase()].push(el[0]);
+    });
+
+    ["adham", "tangy", "josh", "david", "hugo"].forEach(function(n) {
+      map.setFilter(n, riders[n]);
+    });
+    map.setFilter("other-layer", all);
+  }
+</script>
+
+</body>
+</html>
