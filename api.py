@@ -19,10 +19,6 @@ app.config['COMPRESS_MIMETYPES'].append("application/vnd.geo+json")
 
 @app.route('/')
 def root():
-    return app.send_static_file('index.html')
-
-@app.route('/ridden-by')
-def root():
     return app.send_static_file('by-person.html')
 
 @app.route('/status.json')
