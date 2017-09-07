@@ -19,41 +19,125 @@
         bottom: 0;
         width: 100%;
       }
+
+      #logo {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 10%;
+      }
+
+      #logo > img {
+        width: 100%;
+      }
     </style>
 </head>
 <body>
 
-<!--
-<div id='map' style='width: 400px; height: 300px;'></div>
+<div id='map'></div>
+<div id='logo'><img src="/static/logo.png" /></div>
 <script>
   mapboxgl.accessToken = 'pk.eyJ1IjoiaWdub3JlZGFtYmllbmNlIiwiYSI6ImNqNzl4cXRjNTA2amoyeG1iNXJ1eGxlb3kifQ.tX0X5FiKjp3ifGH917pKsA';
   var map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/light-v9'
+    style: 'mapbox://styles/mapbox/light-v9',
+    center: [-0.1275, 51.507222],
+    zoom: 10
   });
 
+  var nav = new mapboxgl.NavigationControl();
+  map.addControl(nav, 'top-left');
+
+
   map.on('load', function () {
-    map.addSource('routes-source', { type: 'geojson', data: '/all-routes.geojson' });
+    map.addSource('routes-source', { type: 'geojson', data: '/static/all-routes.geojson' });
 
     map.addLayer({
-        "id": "routes-layer",
+        "id": "yes-layer",
         "type": "line",
         "source": "routes-source",
         "paint": {
-            "line-color": {
-                "property": "name",
-                "type": "categorical",
-                "stops": stops,
-                "default": "darkslategray"
-            }
-        }
-    }, 'waterway-label');
+          "line-color": "green"
+        },
+        "filter": ["!has", "name"]
+    });
+
+    map.addLayer({
+        "id": "no-layer",
+        "type": "line",
+        "source": "routes-source",
+        "paint": {
+          "line-color": "red"
+        },
+        "filter": ["!has", "name"]
+    }, "yes-layer");
+
+    map.addLayer({
+        "id": "other-layer",
+        "type": "line",
+        "source": "routes-source",
+        "paint": {
+          "line-color": "darkslategray"
+        },
+        "filter": ["has", "name"]
+    }, "no-layer");
+
+    map.addLayer({
+      "id": "attribution-layer",
+      "type": "circle",
+      "source": {
+          "type": "geojson",
+          "data": {
+              "type": "Feature",
+              "properties": {},
+              "geometry": null
+          }
+      }
+    });
+
+    map.style.sourceCaches['attribution-layer']._source.attribution =
+      "Powered by TfL Open Data | Contains OS data &copy; Crown copyright and database rights 2017";
+
+    loadData();
   });
+
+  function loadData() {
+    var r = new XMLHttpRequest();
+
+    r.onreadystatechange = function() {
+      if (r.readyState === XMLHttpRequest.DONE) {
+        if (r.status === 200) {
+          var resp = handleData(r.responseText);
+        }
+      }
+    };
+
+    r.open('GET', '/status.json');
+    r.send();
+  };
+
+  function handleData(text) {
+    var j = JSON.parse(text);
+    var yes = ["in", "name"];
+    var no = ["in", "name"];
+    var all = ["!in", "name"];
+
+    j.forEach(function(el) {
+      all.push(el[0]);
+      if(el[1] == "Y") {
+        yes.push(el[0]);
+      } else {
+        no.push(el[0]);
+      }
+    });
+
+    map.setFilter("other-layer", all);
+    map.setFilter("yes-layer", yes);
+    map.setFilter("no-layer", no);
+
+    window.setTimeout(loadData, 60000);
+  }
 </script>
--->
-<center><img src="/static/logo.png" width="50%" />
-<h1 style="font-family: 'Open Sans', sans-serif;">Coming Soon...</h1>
-</center>
 
 </body>
 </html>

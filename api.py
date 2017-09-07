@@ -1,6 +1,7 @@
 import os
 import requests
 from flask import Flask, jsonify
+from flask_compress import Compress
 
 GOOG_API_KEY=os.environ['GOOG_API_KEY']
 SHEET_ID=os.environ['SHEET_ID']
@@ -10,6 +11,7 @@ goog_api = requests.Session()
 goog_api.params = { 'key': GOOG_API_KEY }
 
 app = Flask(__name__)
+Compress(app)
 
 @app.route('/')
 def root():

@@ -6,3 +6,4 @@ verify_ssl = true
 requests = "*"
 Flask = "*"
 gunicorn = "*"
+Flask-Compress = "*"

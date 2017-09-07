@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f6513e85c8feb043b972a9940da55cad7bdb6eaf25949f2cd3a415fc362e060a"
+            "sha256": "fc8c0a427048fb66371d2fa80975e5bb7fd4999dde51cab53c2019832ea5f8a6"
         },
         "pipfile-spec": 1,
         "requires": {},
@@ -21,6 +21,9 @@
         },
         "flask": {
             "version": "==0.12.2"
+        },
+        "flask-compress": {
+            "version": "==1.4.0"
         },
         "gunicorn": {
             "version": "==19.7.1"
