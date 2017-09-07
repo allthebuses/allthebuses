@@ -2,6 +2,7 @@ import os
 import requests
 from flask import Flask, jsonify
 from flask_compress import Compress
+import mimetypes
 
 GOOG_API_KEY=os.environ['GOOG_API_KEY']
 SHEET_ID=os.environ['SHEET_ID']
@@ -12,6 +13,9 @@ goog_api.params = { 'key': GOOG_API_KEY }
 
 app = Flask(__name__)
 Compress(app)
+
+mimetypes.add_type("application/vnd.geo+json", ".geojson")
+app.config['COMPRESS_MIMETYPES'].append("application/vnd.geo+json")
 
 @app.route('/')
 def root():
