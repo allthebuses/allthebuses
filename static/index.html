@@ -118,7 +118,7 @@
     });
 
     var popup = new mapboxgl.Popup();
-    ["yes-layer", "no-layer", "other-layer"].forEach(function(l) {
+    ["yes-layer", "no-layer"].forEach(function(l) {
       map.on('click', l, function(e) {
         var name = e.features[0].properties.name;
         popup.remove()
