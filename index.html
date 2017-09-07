@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.39.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.39.1/mapbox-gl.css' rel='stylesheet' />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+    </style>
+</head>
+<body>
+
+<div id='map' style='width: 400px; height: 300px;'></div>
+<script>
+  mapboxgl.accessToken = 'pk.eyJ1IjoiaWdub3JlZGFtYmllbmNlIiwiYSI6ImNqNzl4cXRjNTA2amoyeG1iNXJ1eGxlb3kifQ.tX0X5FiKjp3ifGH917pKsA';
+  var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/light-v9'
+  });
+
+  map.on('load', function () {
+    map.addSource('routes-source', { type: 'geojson', data: '/all-routes.geojson' });
+
+    map.addLayer({
+        "id": "routes-layer",
+        "type": "line",
+        "source": "routes-source",
+        "paint": {
+            "line-color": {
+                "property": "name",
+                "type": "categorical",
+                "stops": stops,
+                "default": "darkslategray"
+            }
+        }
+    }, 'waterway-label');
+  });
+</script>
+
+</body>
+</html>
+51.507222, -0.1275
