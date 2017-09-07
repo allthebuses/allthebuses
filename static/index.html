@@ -59,9 +59,10 @@
         "type": "line",
         "source": "routes-source",
         "paint": {
-          "line-color": "#b785a7",
-          "line-width": 7,
-          "line-blur": 3
+          "line-color": "indigo",
+          "line-width": 2,
+          "line-blur": 1,
+          "line-gap-width": 3
         },
         "filter": ["in", "name", ""]
     }, "waterway-label");
@@ -73,8 +74,8 @@
         "source": "routes-source",
         "paint": {
           "line-color": "red",
-          "line-width": zoomStops
-
+          "line-width": zoomStops,
+          "line-blur": 0
         },
         "filter": ["!has", "name"]
     }, "select-layer");
@@ -85,7 +86,8 @@
         "source": "routes-source",
         "paint": {
           "line-color": "green",
-          "line-width": zoomStops
+          "line-width": zoomStops,
+          "line-blur": 1
         },
         "filter": ["!has", "name"]
     }, "no-layer");
@@ -96,8 +98,8 @@
         "source": "routes-source",
         "paint": {
           "line-color": "darkslategray",
-          "line-width": zoomStops
-
+          "line-width": zoomStops,
+          "line-blur": 1
         },
         "filter": ["has", "name"]
     }, "yes-layer");
