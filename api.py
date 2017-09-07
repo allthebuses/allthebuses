@@ -6,9 +6,10 @@ GOOG_API_KEY=os.environ['GOOG_API_KEY']
 SHEET_ID=os.environ['SHEET_ID']
 SHEET_RANGE=os.environ['SHEET_RANGE']
 
-app = Flask(__name__)
 goog_api = requests.Session()
 goog_api.params = { 'key': GOOG_API_KEY }
+
+app = Flask(__name__)
 
 @app.route('/')
 def root():
