@@ -52,35 +52,55 @@
   map.on('load', function () {
     map.addSource('routes-source', { type: 'geojson', data: '/static/all-routes.geojson' });
 
+    var zoomStops = { "stops": [[10, 3], [15, 5]] };
+
     map.addLayer({
-        "id": "yes-layer",
+        "id": "select-layer",
         "type": "line",
         "source": "routes-source",
         "paint": {
-          "line-color": "green"
+          "line-color": "#b785a7",
+          "line-width": 7,
+          "line-blur": 3
         },
-        "filter": ["!has", "name"]
+        "filter": ["in", "name", ""]
     }, "waterway-label");
+
 
     map.addLayer({
         "id": "no-layer",
         "type": "line",
         "source": "routes-source",
         "paint": {
-          "line-color": "red"
+          "line-color": "red",
+          "line-width": zoomStops
+
         },
         "filter": ["!has", "name"]
-    }, "yes-layer");
+    }, "select-layer");
+
+    map.addLayer({
+        "id": "yes-layer",
+        "type": "line",
+        "source": "routes-source",
+        "paint": {
+          "line-color": "green",
+          "line-width": zoomStops
+        },
+        "filter": ["!has", "name"]
+    }, "no-layer");
 
     map.addLayer({
         "id": "other-layer",
         "type": "line",
         "source": "routes-source",
         "paint": {
-          "line-color": "darkslategray"
+          "line-color": "darkslategray",
+          "line-width": zoomStops
+
         },
         "filter": ["has", "name"]
-    }, "no-layer");
+    }, "yes-layer");
 
     map.addLayer({
       "id": "attribution-layer",
@@ -93,6 +113,34 @@
               "geometry": null
           }
       }
+    });
+
+    var popup = new mapboxgl.Popup();
+    ["yes-layer", "no-layer", "other-layer"].forEach(function(l) {
+      map.on('click', l, function(e) {
+        var name = e.features[0].properties.name;
+        popup.remove()
+          .setLngLat(e.lngLat)
+          .setHTML(JSON.stringify(statusData.find(function(e) { return e[0] == name })))
+          .addTo(map)
+          .on("close", function() {
+            map.setFilter("select-layer", ["in", "name", ""]);
+          });
+
+        map.setFilter("select-layer", ["in", "name", name]);
+
+        // Change the cursor to a pointer when the mouse is over the places layer.
+        map.on('mouseenter', l, function () {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+
+        // Change it back to a pointer when it leaves.
+        map.on('mouseleave', l, function () {
+          map.getCanvas().style.cursor = '';
+        });
+
+        return false;
+      });
     });
 
     map.style.sourceCaches['attribution-layer']._source.attribution =
@@ -116,13 +164,14 @@
     r.send();
   };
 
+  var statusData = {};
   function handleData(text) {
-    var j = JSON.parse(text);
+    statusData = JSON.parse(text);
     var yes = ["in", "name"];
     var no = ["in", "name"];
     var all = ["!in", "name"];
 
-    j.forEach(function(el) {
+    statusData.forEach(function(el) {
       all.push(el[0]);
       if(el[1] == "Y") {
         yes.push(el[0]);
