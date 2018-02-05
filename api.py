@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import Flask, jsonify
+from flask import Flask, jsonify, redirect
 from flask_compress import Compress
 import mimetypes
 
