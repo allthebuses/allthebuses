@@ -19,7 +19,8 @@ app.config['COMPRESS_MIMETYPES'].append("application/vnd.geo+json")
 
 @app.route('/')
 def root():
-    return app.send_static_file('by-person.html')
+    return redirect("https://allthebuses.github.io/", code=301)
+    #return app.send_static_file('by-person.html')
 
 @app.route('/status.json')
 def status():
